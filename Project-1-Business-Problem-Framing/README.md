@@ -1,28 +1,29 @@
-1. Business Problem
-A company is experiencing customer churn and wants to understand why customers leave and identify customers who are at high risk of churn.
+Business problem :
+A telecom company is losing customers. Customer churn directly affects recurring revenue and increases the need to acquire replacement customers.
 
-2. Business Objective
-Reduce customer churn by identifying important factors associated with customer attrition and eventually developing a system that can identify high-risk customers.
+ML/Data Science problem :
+Identify customer characteristics associated with churn and develop a data-driven approach for identifying customers who are at higher risk of leaving the telecom company.
 
-3. Data Required
-For example:
-Customer ID
-Age
-Gender
+Business objective :
+Understand major factors associated with customer churn.
+Identify high-risk customer segments.
+Support targeted customer-retention strategies.
+Eventually build a churn prediction model.
+Required data
+
+Use:
+Customer demographics
 Tenure
-Monthly Charges
-Contract Type
-Payment Method
-Internet Service
-Total Charges
-Customer Support Calls
-Churn
-
-4. Data Science Problem
-Given historical customer information, analyze the factors associated with churn and develop a predictive classification model that estimates whether a customer is likely to churn.
-
-5. Expected Output
-Business insights
-Important churn factors
-Customer churn probability
-High-risk customer identification
+Contract type
+Internet service
+Payment method
+Monthly charges
+Total charges
+Additional services
+Churn status
+Expected analytical output
+Churn rate
+High-risk customer segments
+Important churn-related factors
+Statistical evidence for business assumptions
+Recommendations for retention
