@@ -1,46 +1,109 @@
 import pandas as pd
 
 # Load dataset
-df = pd.read_csv("input/dataset.csv")
-
-print("Original Dataset Shape:", df.shape)
-
-# Remove unnecessary column
-if "customerID" in df.columns:
-    df.drop(columns=["customerID"], inplace=True)
+file_path = "../dataset/WA_Fn-UseC_-Telco-Customer-Churn.csv"
+df = pd.read_csv(file_path)
 
 # Convert TotalCharges to numeric
-if "TotalCharges" in df.columns:
-    df["TotalCharges"] = pd.to_numeric(
-        df["TotalCharges"],
-        errors="coerce"
-    )
-
-# Create customer value category
-if "MonthlyCharges" in df.columns:
-    df["Customer_Value"] = pd.cut(
-        df["MonthlyCharges"],
-        bins=[0, 50, 100, float("inf")],
-        labels=["Low", "Medium", "High"]
-    )
-
-# Business rule
-if "tenure" in df.columns:
-    df["Customer_Segment"] = df["tenure"].apply(
-        lambda x: "New Customer"
-        if x < 12
-        else "Existing Customer"
-    )
-
-# Generate summary
-summary = df.groupby("Customer_Segment").size().reset_index(
-    name="Customer_Count"
+df["TotalCharges"] = pd.to_numeric(
+    df["TotalCharges"], errors="coerce"
 )
 
-print("\nCustomer Segment Summary:")
-print(summary)
+# -----------------------------
+# Business Rule 1: Customer Age
+# -----------------------------
 
-# Save processed data
-df.to_csv("output/processed_data.csv", index=False)
+def customer_segment(tenure):
+    if tenure <= 12:
+        return "New Customer"
+    elif tenure <= 48:
+        return "Established Customer"
+    else:
+        return "Long-Term Customer"
 
-print("\nProcessed dataset saved successfully.")
+
+df["CustomerSegment"] = df["tenure"].apply(customer_segment)
+
+# --------------------------------
+# Business Rule 2: Monthly Charges
+# --------------------------------
+
+def charge_category(charge):
+    if charge >= 70:
+        return "High Charge"
+    elif charge >= 40:
+        return "Medium Charge"
+    else:
+        return "Low Charge"
+
+
+df["ChargeCategory"] = df["MonthlyCharges"].apply(charge_category)
+
+# -----------------------------
+# Business Rule 3: Revenue
+# -----------------------------
+
+df["EstimatedAnnualRevenue"] = df["MonthlyCharges"] * 12
+
+# -----------------------------
+# Business Rule 4: Churn Risk
+# -----------------------------
+
+def churn_risk(row):
+
+    score = 0
+
+    if row["Contract"] == "Month-to-month":
+        score += 1
+
+    if row["tenure"] <= 12:
+        score += 1
+
+    if row["MonthlyCharges"] >= 70:
+        score += 1
+
+    if row["PaymentMethod"] == "Electronic check":
+        score += 1
+
+    if score >= 3:
+        return "High Risk"
+    elif score == 2:
+        return "Medium Risk"
+    else:
+        return "Low Risk"
+
+
+df["RiskCategory"] = df.apply(churn_risk, axis=1)
+
+# -----------------------------
+# Generate output
+# -----------------------------
+
+output_columns = [
+    "customerID",
+    "tenure",
+    "MonthlyCharges",
+    "CustomerSegment",
+    "ChargeCategory",
+    "EstimatedAnnualRevenue",
+    "RiskCategory",
+    "Churn"
+]
+
+processed_data = df[output_columns]
+
+processed_data.to_csv(
+    "../dataset/processed_customer_data.csv",
+    index=False
+)
+
+print("Processing completed successfully.")
+
+print("\nCustomer Segment:")
+print(df["CustomerSegment"].value_counts())
+
+print("\nRisk Category:")
+print(df["RiskCategory"].value_counts())
+
+print("\nProcessed Data:")
+print(processed_data.head())
